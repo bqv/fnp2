@@ -72,10 +72,9 @@ template<typename XS, typename X> struct Index {
 template<template<typename> class F, typename XS> struct Map {
     typedef typename XS::Head Head;
     typedef typename XS::Tail Tail;
-    typedef Apply<Template<F>, Head> X;
-    typedef List<typename X::type, typename Map<F, Tail>::type> type;
+    typedef typename F<Head>::type X;
+    typedef List<X, typename Map<F, Tail>::type> type;
 };
-
 template<template<typename> class F> struct Map<F, Nil> {
     typedef Nil type;
 };

@@ -1,4 +1,21 @@
 
+template<typename L, typename R> struct IAdd {
+    typedef Int<L::type::value + R::type::value> type;
+};
+
+template<typename L, typename R> struct ISub {
+    typedef Int<L::type::value - R::type::value> type;
+};
+
+template<typename L, typename R> struct IMul {
+    typedef Int<L::type::value * R::type::value> type;
+};
+
+template<typename L, typename R> struct IDiv {
+    static_assert(R::type::value != 0, "Division by zero");
+    typedef Int<L::type::value / R::type::value> type;
+};
+
 template<int X, int Y> struct GCD {
     static const long result = GCD<Y, X % Y>::value;
 };
