@@ -67,11 +67,18 @@ template<typename X> struct Id {
     typedef X type;
 };
 
+template<typename X> struct Not {
+    static const bool value = !(X::type::value);
+    typedef Bool<value> type;
+};
+
 template<class X, class Y> struct Eq {
     static const bool value = false;
+    typedef Bool<value> type;
 };
 template<class X> struct Eq<X,X> {
     static const bool value = true;
+    typedef Bool<value> type;
 };
 
 #include "maths.hpp"

@@ -64,18 +64,32 @@ template<typename XS, typename X> struct Index {
         static const int value = 0;
     };
 
-    static_assert(Member<XS, X>::value, "Element not in list");
+    static_assert(Member<XS, X>::type::value, "Element not in list");
     static const int value = Go<XS, X>::value;
     typedef Int<value> type;
 };
 
-template<template<typename> class F, typename XS> struct Map {
-    typedef typename XS::Head Head;
-    typedef typename XS::Tail Tail;
-    typedef typename F<Head>::type X;
-    typedef List<X, typename Map<F, Tail>::type> type;
+template<template<typename> class F, typename L> struct Map {
+    typedef typename F<typename L::Head>::type X;
+    typedef typename Map<F, typename L::Tail>::type XS;
+    typedef List<X, XS> type;
 };
 template<template<typename> class F> struct Map<F, Nil> {
+    typedef Nil type;
+};
+
+template<template<typename, typename> class F, typename L, typename R> struct ZipWith {
+    typedef typename F<typename L::Head, typename R::Head>::type X;
+    typedef typename ZipWith<F, typename L::Tail, typename R::Tail>::type XS;
+    typedef List<X, XS> type;
+};
+template<template<typename, typename> class F, typename L> struct ZipWith<F, L, Nil> {
+    typedef Nil type;
+};
+template<template<typename, typename> class F, typename R> struct ZipWith<F, Nil, R> {
+    typedef Nil type;
+};
+template<template<typename, typename> class F> struct ZipWith<F, Nil, Nil> {
     typedef Nil type;
 };
 

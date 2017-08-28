@@ -1,4 +1,14 @@
 
+template<typename X> struct Even {
+    static const bool value = (X::type::value % 2) == 0;
+    typedef Bool<value> type;
+};
+
+template<typename X> struct Odd {
+    static const bool value = (X::type::value % 2) == 1;
+    typedef Bool<value> type;
+};
+
 template<typename L, typename R> struct IAdd {
     typedef Int<L::type::value + R::type::value> type;
 };
@@ -14,6 +24,36 @@ template<typename L, typename R> struct IMul {
 template<typename L, typename R> struct IDiv {
     static_assert(R::type::value != 0, "Division by zero");
     typedef Int<L::type::value / R::type::value> type;
+};
+/**
+ * pow :: Int -> Int -> Int
+ * pow x 0           =  1
+ * pow x n | n > 0   =  f x (n-1) x where
+ *   f a 0 acc = acc
+ *   f a d acc = g a d  where
+ *     g b i | even i  = g (b*b) (i `quot` 2)
+ *           | otherwise = f b (i-1) (b*acc)
+ * pow x n           = error "Prelude.^: negative exponent"
+ */
+template<typename X, typename N> struct IPow {
+    static_assert(N::type::value > 0, "Negative exponent");
+    template<typename A, typename D, typename Y> struct F {
+        template<typename B, typename I, class Enable = void> struct G {
+            typedef typename F<B, typename ISub<I, Int<1>>::type, typename IMul<B, Y>::type>::type type;
+        };
+        template<typename B, typename I> struct G<B, I, typename std::enable_if<Even<I>::type::value>::type> {
+            typedef typename G<typename IMul<B, B>::type, typename IDiv<I, Int<2>>::type>::type type;
+        };
+        typedef typename G<A, D>::type type;
+    };
+    template<typename A, typename Y> struct F<A, Int<0>, Y> {
+        typedef typename Y::type type;
+    };
+    typedef typename F<X, typename ISub<N, Int<1>>::type, X>::type type;
+};
+template<typename X> struct IPow<X, Int<0>> {
+    static const int value = 1;
+    typedef Int<value> type;
 };
 
 template<int X, int Y> struct GCD {
