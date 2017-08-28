@@ -25,16 +25,7 @@ template<typename L, typename R> struct IDiv {
     static_assert(R::type::value != 0, "Division by zero");
     typedef Int<L::type::value / R::type::value> type;
 };
-/**
- * pow :: Int -> Int -> Int
- * pow x 0           =  1
- * pow x n | n > 0   =  f x (n-1) x where
- *   f a 0 acc = acc
- *   f a d acc = g a d  where
- *     g b i | even i  = g (b*b) (i `quot` 2)
- *           | otherwise = f b (i-1) (b*acc)
- * pow x n           = error "Prelude.^: negative exponent"
- */
+
 template<typename X, typename N> struct IPow {
     static_assert(N::type::value > 0, "Negative exponent");
     template<typename A, typename D, typename Y> struct F {

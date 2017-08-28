@@ -73,6 +73,10 @@ template<template<typename...> class F> struct Curry<F> {
     using type = F<>;
 };
 
+template<template<typename...> class F, typename... XS> struct Partial {
+    template<typename... YS> using type = typename Curry<F, XS..., YS...>::type;
+};
+
 template<typename X> struct Id {
     typedef X type;
 };
