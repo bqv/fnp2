@@ -31,7 +31,7 @@ template<typename H, typename T=Nil> struct List {
 template<typename... XS> struct Array {
 };
 
-template<template<typename> class> struct Template {
+template<template<typename...> class, typename...> struct Template {
 };
 
 template<typename X> struct Void {
@@ -45,11 +45,21 @@ template<typename X> struct Eval<X, typename Void<typename X::type>::type> {
     typedef typename Eval<typename X::type>::type type;
 };
 
-template<typename F, typename X> struct Apply {
-    typedef typename Apply<Eval<F>, X>::type type;
+template<typename T, typename = void> struct DoApply {
+    typedef T type;
 };
-template<template<typename> class F, typename X> struct Apply<Template<F>, X> {
-    typedef typename F<X>::type type;
+template<template<typename...> class F, typename... XS> struct DoApply<Template<F, XS...>, typename Void<typename F<XS...>::type>::type> {
+    typedef typename F<XS...>::type type;
+};
+
+template<typename F, typename... XS> struct Apply {
+    typedef typename Apply<Eval<F>, XS...>::type type;
+};
+template<template<typename...> class F, typename... XS, typename T1, typename T2, typename... TS> struct Apply<Template<F, XS...>, T1, T2, TS...> {
+    typedef typename Apply<typename DoApply<Template<F, XS..., T1>>::type, T2, TS...>::type type;
+};
+template<template<typename...> class F, typename... XS, typename T> struct Apply<Template<F, XS...>, T> {
+    typedef typename DoApply<Template<F, XS..., T>>::type type;
 };
 
 template<template<typename> class F, template<typename> class G> struct Compose {
