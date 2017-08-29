@@ -65,7 +65,7 @@ template<typename A, typename B> struct Range {
     typedef List<A, typename Range<typename IAdd<A, Int<1>>::type, B>::type> type;
 };
 template<typename B> struct Range<B, B> {
-    typedef Nil type;
+    typedef List<B> type;
 };
 
 template<long X, long Y> struct GCD {
@@ -142,7 +142,7 @@ template<typename X> struct RPow<X, Int<0>> {
 };
 
 template<typename X> struct RExp {
-    typedef typename Range<Int<0>, Int<14>>::type Nats;
+    typedef typename Range<Int<0>, Int<13>>::type Nats;
     template<typename N> using IAddOne = typename Curry<IAdd, Int<1>, N>::type;
     template<typename N> using RAddOne = typename Compose<Int2Rat, IAddOne>::template type<N>;
     template<typename N> using RPowX = typename Partial<RPow, X>::template type<N>;

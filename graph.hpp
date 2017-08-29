@@ -8,4 +8,16 @@ template<typename X> struct Sigmoid {
     typedef typename RDiv<Rat<1>, typename RAdd<Rat<1>, typename RExp<typename RNeg<X>::type>::type>::type>::type type;
 };
 
+template<typename X> struct SigmoidDeriv {
+    typedef typename RMul<X, typename RSub<Rat<1>, X>::type>::type type;
+};
+
+template<typename X> struct Step {
+    typedef typename If<Bool<X::type::value >= 0>, Int<1>, Int<-1>>::type type;
+};
+
+template<typename X> struct StepDeriv {
+    typedef Int<0> type;
+};
+
 #endif /*GRAPH_HPP*/

@@ -1,6 +1,8 @@
 #ifndef _PRELUDE_HPP_
 #define _PRELUDE_HPP_
 
+#include <sstream>
+
 template<bool B> struct Bool {
     typedef Bool<B> type;
     static const bool value = B;
@@ -16,11 +18,14 @@ template<long N> struct Int {
     static const long value = N;
 };
 
+template<typename... DS> struct Integer {
+};
+
 template<long N, long D = 1> struct Rat {
     typedef Rat<N, D> type;
-    static const long num = N;
-    static const long den = D;
-    static constexpr double value = 1.0 * num / den;
+    static const long long num = N;
+    static const long long den = D;
+    static constexpr long double value = 1.0 * num / den;
 };
 
 template<typename X> struct Int2Rat {
@@ -32,6 +37,31 @@ struct Nil {
 template<typename H, typename T=Nil> struct List {
     typedef H Head;
     typedef T Tail;
+};
+template<char C, typename T> class List<Char<C>, T> {
+    typedef Char<C> Head;
+    typedef T Tail;
+  public:
+    List() {}
+    template<char D, typename S> friend std::ostream& operator<<(std::ostream& os, const List<Char<D>, S>& s);
+};
+
+template<char C, typename T> std::ostream& operator<<(std::ostream& os, const List<Char<C>, T>& s) {
+    os << C << typename T::List();
+    return os;
+};
+template<char C> std::ostream& operator<<(std::ostream& os, const List<Char<C>, Nil>& s) {
+    os << C;
+    return os;
+};
+std::ostream& operator<<(std::ostream& os, const Nil& s) {
+    return os;
+};
+
+template<typename X> std::string PutStrLn() {
+    std::ostringstream os;
+    os << typename X::List() << std::endl;
+    return os.str();
 };
 
 template<typename... XS> struct Array {

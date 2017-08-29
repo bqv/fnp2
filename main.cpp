@@ -4,7 +4,8 @@
 #include "graph.hpp"
 
 template<typename N> using PowTwo = typename Partial<IPow, Int<2>>::type<N>;
-typedef List<Int<0>, List<Int<1>, List<Int<2>, List<Int<3> >>>> Nats;
+typedef typename Range<Int<0>, Int<6>>::type Nats;
+typedef List<Char<'H'>, List<Char<'e'>, List<Char<'l'>, List<Char<'l'>, List<Char<'o'> >>>>> String;
 typedef Apply<Template<Compose<Sigmoid,Int2Rat,PowTwo>::type>, Int<2>>::type SigmoidFour;
 
 typedef typename RExp<Rat<1, 2>>::type E;
@@ -16,6 +17,7 @@ int main(int argc, char *argv[])
     std::cout << "Length: " << Apply<Template<Length>, Nats>::type::value << std::endl;
     std::cout << "Second: " << Nth<Nats, 1>::type::value << std::endl;
     std::cout << "Index(3): " << Index<Nats, Int<3>>::type::value << std::endl;
+    std::cout << "String: " << PutStrLn<String>();
     return 0;
 }
 
