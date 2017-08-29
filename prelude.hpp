@@ -87,7 +87,11 @@ template<template<typename...> class F, typename... XS, typename T> struct Apply
     typedef typename DoApply<Template<F, XS..., T>>::type type;
 };
 
-template<template<typename> class F, template<typename> class G> struct Compose {
+template<template<typename> class F, template<typename> class G, template<typename> class... Rest> struct Compose {
+    template<typename X> using templ = typename Compose<F, G>::template type<X>;
+    template<typename X> using type = typename Compose<templ, Rest...>::template type<X>;
+};
+template<template<typename> class F, template<typename> class G> struct Compose<F, G> {
     template<typename X> using type = F<G<X>>;
 };
 

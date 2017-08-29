@@ -56,6 +56,10 @@ template<typename X> struct INeg {
     typedef Int<value> type;
 };
 
+template<typename XS> struct ISum {
+    typedef typename Foldl<IAdd, Int<0>, XS>::type type;
+};
+
 template<long X, long Y> struct GCD {
     static const long value = GCD<Y, X % Y>::type::value;
     typedef Int<value> type;
@@ -141,9 +145,13 @@ template<typename X> struct RExp {
 };
 
 template<typename X> struct RNeg {
-    static const int num = -X::num;
-    static const int den = X::den;
+    static const int num = -X::type::num;
+    static const int den = X::type::den;
     typedef Rat<num, den> type;
+};
+
+template<typename XS> struct RSum {
+    typedef typename Foldl<RAdd, Rat<0>, XS>::type type;
 };
 
 #endif /*MATHS_HPP*/
