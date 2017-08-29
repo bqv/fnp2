@@ -28,13 +28,32 @@ template<typename X> struct Int2Rat {
 
 struct Nil {
 };
-
 template<typename H, typename T=Nil> struct List {
     typedef H Head;
     typedef T Tail;
 };
 
 template<typename... XS> struct Array {
+};
+
+template<typename X, typename Y> struct Tuple {
+    typedef X Fst;
+    typedef Y Snd;
+};
+
+struct Nothing {
+};
+template<typename X> struct Just {
+    typedef X FromJust;
+};
+
+template<typename C, typename T, typename F> struct If {
+};
+template<typename T, typename F> struct If<Bool<true>, T, F> {
+    typedef T type;
+};
+template<typename T, typename F> struct If<Bool<false>, T, F> {
+    typedef F type;
 };
 
 template<template<typename...> class F, typename...> struct Template {
@@ -101,7 +120,17 @@ template<class X> struct Eq<X,X> {
     typedef Bool<value> type;
 };
 
+template<template<typename> class F, typename M> struct FMap {
+    static_assert(Not<typename Eq<M, M>::type>::type::value, "No instance for type");
+};
+
+template<typename M, template<typename> class F> struct Bind {
+    static_assert(Not<typename Eq<M, M>::type>::type::value, "No instance for type");
+};
+
+#include "maybe.hpp"
 #include "maths.hpp"
 #include "list.hpp"
+#include "assoc.hpp"
 
 #endif /*PRELUDE_HPP*/

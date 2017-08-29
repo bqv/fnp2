@@ -51,16 +51,21 @@ template<typename X> struct IPow<X, Int<0>> {
     typedef Int<value> type;
 };
 
-template<int X, int Y> struct GCD {
+template<typename X> struct INeg {
+    static const int value = -X::type::value;
+    typedef Int<value> type;
+};
+
+template<long X, long Y> struct GCD {
     static const long value = GCD<Y, X % Y>::type::value;
     typedef Int<value> type;
 };
-template<int X> struct GCD<X, 0> {
+template<long X> struct GCD<X, 0> {
     static const long value = X;
     typedef Int<value> type;
 };
 
-template<int N, typename R> struct Scale {
+template<long N, typename R> struct Scale {
     typedef Rat<N*R::num, N*R::den> type;
 };
 
@@ -104,17 +109,41 @@ template<typename L, typename R> struct RDiv {
     typedef typename Simplify<Rat<num, den>>::type type;
 };
 
+template<typename X, typename N> struct RPow {
+    static_assert(N::type::value > 0, "Negative exponent");
+    template<typename A, typename D, typename Y> struct F {
+        template<typename B, typename I, class Enable = void> struct G {
+            typedef typename F<B, typename ISub<I, Int<1>>::type, typename RMul<B, Y>::type>::type type;
+        };
+        template<typename B, typename I> struct G<B, I, typename std::enable_if<Even<I>::type::value>::type> {
+            typedef typename G<typename RMul<B, B>::type, typename IDiv<I, Int<2>>::type>::type type;
+        };
+        typedef typename G<A, D>::type type;
+    };
+    template<typename A, typename Y> struct F<A, Int<0>, Y> {
+        typedef typename Y::type type;
+    };
+    typedef typename F<X, typename ISub<N, Int<1>>::type, X>::type type;
+};
+template<typename X> struct RPow<X, Int<0>> {
+    typedef Rat<1> type;
+};
+
 template<typename X> struct RExp {
     typedef List<Int<0>, List<Int<1>, List<Int<2>, List<Int<3>, List<Int<4>, List<Int<5>, List<Int<6>, List<Int<7>, List<Int<8> >>>>>>>>> Nats;
     template<typename N> using IAddOne = typename Curry<IAdd, Int<1>, N>::type;
     template<typename N> using RAddOne = typename Compose<Int2Rat, IAddOne>::template type<N>;
-    template<typename N> using IPowX = typename Partial<IPow, X>::template type<N>;
-    template<typename N> using RPowX = typename Compose<Int2Rat, IPowX>::template type<N>;
+    template<typename N> using RPowX = typename Partial<RPow, X>::template type<N>;
     typedef typename Map<RPowX, Nats>::type XS;
     typedef typename Scanl<RMul, Rat<1>, typename Map<RAddOne, Nats>::type>::type YS;
-    typedef typename ZipWith<RDiv, XS, List<Rat<1>, YS>>::type AS;
-    typedef typename Scanl<RAdd, Rat<0>, AS>::type BS;
-    typedef typename Last<BS>::type type;
+    typedef typename ZipWith<RDiv, XS, List<Rat<1>, YS>>::type ZS;
+    typedef typename Last<typename Scanl<RAdd, Rat<0>, ZS>::type>::type type;
+};
+
+template<typename X> struct RNeg {
+    static const int num = -X::num;
+    static const int den = X::den;
+    typedef Rat<num, den> type;
 };
 
 #endif /*MATHS_HPP*/

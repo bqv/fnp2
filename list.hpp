@@ -76,7 +76,7 @@ template<typename XS, typename X> struct Index {
     template<typename YS, typename Y> struct Go {
         typedef typename YS::Head Head;
         typedef typename YS::Tail Tail;
-        static const bool found = Eq<Y, Head>::value;
+        static const bool found = Eq<Y, Head>::type::value;
         static const int value = found ? 0 : 1 + Go<Tail, Y>::value;
     };
     template<typename Y> struct Go<Nil, Y> {
@@ -119,6 +119,10 @@ template<template<typename, typename> class F, typename A, typename L> struct Sc
 };
 template<template<typename, typename> class F, typename A> struct Scanl<F, A, Nil> {
     typedef Nil type;
+};
+
+template<template<typename, typename> class F, typename A, typename L> struct Foldl {
+    typedef typename Last<typename Scanl<F, A, L>::type>::type type;
 };
 
 #endif /*LIST_HPP*/
