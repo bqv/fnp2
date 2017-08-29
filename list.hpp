@@ -2,6 +2,7 @@
 #define _LIST_HPP_
 
 #include <type_traits>
+#include "maths.hpp"
 
 template<typename XS> struct Head {
     typedef typename XS::Head type;

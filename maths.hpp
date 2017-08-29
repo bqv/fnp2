@@ -60,6 +60,14 @@ template<typename XS> struct ISum {
     typedef typename Foldl<IAdd, Int<0>, XS>::type type;
 };
 
+template<typename A, typename B> struct Range {
+    static_assert(A::type::value <= B::type::value, "Invalid range specifier");
+    typedef List<A, typename Range<typename IAdd<A, Int<1>>::type, B>::type> type;
+};
+template<typename B> struct Range<B, B> {
+    typedef Nil type;
+};
+
 template<long X, long Y> struct GCD {
     static const long value = GCD<Y, X % Y>::type::value;
     typedef Int<value> type;
@@ -134,7 +142,7 @@ template<typename X> struct RPow<X, Int<0>> {
 };
 
 template<typename X> struct RExp {
-    typedef List<Int<0>, List<Int<1>, List<Int<2>, List<Int<3>, List<Int<4>, List<Int<5>, List<Int<6>, List<Int<7>, List<Int<8> >>>>>>>>> Nats;
+    typedef typename Range<Int<0>, Int<14>>::type Nats;
     template<typename N> using IAddOne = typename Curry<IAdd, Int<1>, N>::type;
     template<typename N> using RAddOne = typename Compose<Int2Rat, IAddOne>::template type<N>;
     template<typename N> using RPowX = typename Partial<RPow, X>::template type<N>;

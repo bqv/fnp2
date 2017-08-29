@@ -11,15 +11,16 @@ template<char C> struct Char {
     static const char value = C;
 };
 
-template<int N> struct Int {
+template<long N> struct Int {
     typedef Int<N> type;
-    static const int value = N;
+    static const long value = N;
 };
 
 template<long N, long D = 1> struct Rat {
     typedef Rat<N, D> type;
     static const long num = N;
     static const long den = D;
+    static constexpr double value = 1.0 * num / den;
 };
 
 template<typename X> struct Int2Rat {
