@@ -1,3 +1,5 @@
+#ifndef _LIST_HPP_
+#define _LIST_HPP_
 
 #include <type_traits>
 
@@ -7,6 +9,23 @@ template<typename XS> struct Head {
 
 template<typename XS> struct Tail {
     typedef typename XS::Tail type;
+};
+
+template<typename XS> struct Last {
+    typedef typename XS::Tail Tail;
+    typedef typename Last<Tail>::type type;
+};
+template<typename X> struct Last<List<X, Nil>> {
+    typedef X type;
+};
+
+template<typename XS> struct Init {
+    typedef typename XS::Head Head;
+    typedef typename XS::Tail Tail;
+    typedef List<Head, typename Init<Tail>::type> type;
+};
+template<typename X> struct Init<List<X, Nil>> {
+    typedef Nil type;
 };
 
 template<typename XS> struct Length {
@@ -70,7 +89,7 @@ template<typename XS, typename X> struct Index {
 };
 
 template<template<typename> class F, typename L> struct Map {
-    typedef typename F<typename L::Head>::type X;
+    typedef typename Apply<Template<F>, typename L::Head>::type X;
     typedef typename Map<F, typename L::Tail>::type XS;
     typedef List<X, XS> type;
 };
@@ -93,3 +112,13 @@ template<template<typename, typename> class F> struct ZipWith<F, Nil, Nil> {
     typedef Nil type;
 };
 
+template<template<typename, typename> class F, typename A, typename L> struct Scanl {
+    typedef typename F<A, typename L::Head>::type X;
+    typedef typename Scanl<F, X, typename L::Tail>::type XS;
+    typedef List<X, XS> type;
+};
+template<template<typename, typename> class F, typename A> struct Scanl<F, A, Nil> {
+    typedef Nil type;
+};
+
+#endif /*LIST_HPP*/

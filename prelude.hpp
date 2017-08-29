@@ -1,3 +1,5 @@
+#ifndef _PRELUDE_HPP_
+#define _PRELUDE_HPP_
 
 template<bool B> struct Bool {
     typedef Bool<B> type;
@@ -20,6 +22,10 @@ template<long N, long D = 1> struct Rat {
     static const long den = D;
 };
 
+template<typename X> struct Int2Rat {
+    typedef Rat<X::type::value> type;
+};
+
 struct Nil {
 };
 
@@ -31,7 +37,7 @@ template<typename H, typename T=Nil> struct List {
 template<typename... XS> struct Array {
 };
 
-template<template<typename...> class, typename...> struct Template {
+template<template<typename...> class F, typename...> struct Template {
 };
 
 template<typename X> struct Void {
@@ -98,3 +104,4 @@ template<class X> struct Eq<X,X> {
 #include "maths.hpp"
 #include "list.hpp"
 
+#endif /*PRELUDE_HPP*/
