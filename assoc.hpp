@@ -54,4 +54,11 @@ template<typename K, typename V, typename L> struct Insert {
     typedef List<Tuple<K, V>, typename Delete<K, L>::type> type;
 };
 
+template<template<typename> class F, typename L> struct FilterKeys {
+    typedef typename L::Head Head;
+    typedef typename L::Tail Tail;
+    typedef typename FilterKeys<F, Tail>::type Rest;
+    typedef typename If<typename F<typename Head::Fst>::type, List<Head, Rest>, Rest>::type type;
+};
+
 #endif /*ASSOC_HPP*/

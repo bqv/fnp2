@@ -3,6 +3,16 @@
 
 #include "maths.hpp"
 
+template<> struct Join<Nothing> {
+    typedef Nothing type;
+};
+template<> struct Join<Just<Nothing>> {
+    typedef Nothing type;
+};
+template<typename X> struct Join<Just<Just<X>>> {
+    typedef Just<X> type;
+};
+
 template<template<typename> class F> struct FMap<F, Nothing> {
     typedef Nothing type;
 };
@@ -15,6 +25,35 @@ template<template<typename> class F> struct Bind<Nothing, F> {
 };
 template<typename X, template<typename> class F> struct Bind<Just<X>, F> {
     typedef typename F<X>::type type;
+};
+
+template<template<typename,typename> class F> struct LiftM2<F, Nothing, Nothing> {
+    typedef Nothing type;
+};
+template<template<typename,typename> class F, typename X> struct LiftM2<F, Just<X>, Nothing> {
+    typedef Nothing type;
+};
+template<template<typename,typename> class F, typename Y> struct LiftM2<F, Nothing, Just<Y>> {
+    typedef Nothing type;
+};
+template<template<typename,typename> class F, typename X, typename Y> struct LiftM2<F, Just<X>, Just<Y>> {
+    typedef Just<typename F<X, Y>::type> type;
+};
+
+template<typename N, template<typename> class J, typename M> struct Maybe {
+};
+template<typename N, template<typename> class J> struct Maybe<N, J, Nothing> {
+    typedef N type;
+};
+template<typename N, template<typename> class J, typename X> struct Maybe<N, J, Just<X>> {
+    typedef typename J<X>::type type;
+};
+
+template<typename L> struct Sequence {
+};
+template<typename H, typename T> struct Sequence<List<Just<H>, T>> {
+    template<typename R> using F = List<H, R>;
+    typedef typename Bind<typename Sequence<T>::type, F>::type type;
 };
 
 template<typename XS> struct SafeHead {

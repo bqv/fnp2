@@ -16,6 +16,17 @@ template<char C> struct Char {
 template<long N> struct Int {
     typedef Int<N> type;
     static const long value = N;
+  public:
+    Int() {}
+    static Int<N> New() {
+        return Int();
+    }
+    template<long I> friend std::ostream& operator<<(std::ostream& os, const Int<I>& s);
+};
+
+template<long N> std::ostream& operator<<(std::ostream& os, const Int<N>& s) {
+    os << N;
+    return os;
 };
 
 template<typename... DS> struct Integer {
@@ -39,11 +50,15 @@ template<typename H, typename T=Nil> struct List {
     typedef T Tail;
 };
 template<char C, typename T> class List<Char<C>, T> {
+  public:
     typedef Char<C> Head;
     typedef T Tail;
-  public:
     List() {}
+    static List<Char<C>, T> New() {
+        return List();
+    }
     template<char D, typename S> friend std::ostream& operator<<(std::ostream& os, const List<Char<D>, S>& s);
+    template<char D, typename S> friend std::ostream& operator<<(std::ostream& os, const List<Int<D>, S>& s);
 };
 
 template<char C, typename T> std::ostream& operator<<(std::ostream& os, const List<Char<C>, T>& s) {
@@ -54,13 +69,21 @@ template<char C> std::ostream& operator<<(std::ostream& os, const List<Char<C>, 
     os << C;
     return os;
 };
+template<long N, typename T> std::ostream& operator<<(std::ostream& os, const List<Int<N>, T>& s) {
+    os << N << ' ' << typename T::List();
+    return os;
+};
+template<long N> std::ostream& operator<<(std::ostream& os, const List<Int<N>, Nil>& s) {
+    os << N << ' ';
+    return os;
+};
 std::ostream& operator<<(std::ostream& os, const Nil& s) {
     return os;
 };
 
 template<typename X> std::string PutStrLn() {
     std::ostringstream os;
-    os << typename X::List() << std::endl;
+    os << X::New() << std::endl;
     return os.str();
 };
 
@@ -73,9 +96,22 @@ template<typename X, typename Y> struct Tuple {
 };
 
 struct Nothing {
+    template<template<typename> class F> struct Bind {
+        typedef Nothing type;
+    };
 };
 template<typename X> struct Just {
     typedef X FromJust;
+    template<template<typename> class F> struct Bind {
+        typedef typename F<X>::type type;
+    };
+};
+
+template<const char* X> struct Left {
+    const char* FromLeft = X;
+};
+template<typename X> struct Right {
+    typedef X FromRight;
 };
 
 template<typename C, typename T, typename F> struct If {
@@ -137,6 +173,10 @@ template<template<typename...> class F, typename... XS> struct Partial {
     template<typename... YS> using type = typename Curry<F, XS..., YS...>::type;
 };
 
+template<template<typename,typename,typename...> class F> struct Flip {
+    template<typename X, typename Y, typename... ZS> using type = typename F<Y, X, ZS...>::type;
+};
+
 template<typename X> struct Id {
     typedef X type;
 };
@@ -155,6 +195,10 @@ template<class X> struct Eq<X,X> {
     typedef Bool<value> type;
 };
 
+template<typename M> struct Join {
+    static_assert(Not<typename Eq<M, M>::type>::type::value, "No instance for type");
+};
+
 template<template<typename> class F, typename M> struct FMap {
     static_assert(Not<typename Eq<M, M>::type>::type::value, "No instance for type");
 };
@@ -163,7 +207,12 @@ template<typename M, template<typename> class F> struct Bind {
     static_assert(Not<typename Eq<M, M>::type>::type::value, "No instance for type");
 };
 
+template<template<typename,typename> class F, typename M1, typename M2> struct LiftM2 {
+    static_assert(Not<typename Eq<M1, M1>::type>::type::value, "No instance for type");
+};
+
 #include "maybe.hpp"
+#include "either.hpp"
 #include "maths.hpp"
 #include "list.hpp"
 #include "assoc.hpp"

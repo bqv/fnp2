@@ -73,6 +73,16 @@ template<typename X> struct Append<X, Nil> {
     typedef List<X, Nil> type;
 };
 
+template<typename XS, typename YS> struct Concat {
+    typedef typename XS::Head Head;
+    typedef typename XS::Tail Tail;
+    typedef typename Concat<Tail, YS>::type Rest;
+    typedef List<Head, Rest> type;
+};
+template<typename YS> struct Concat<Nil, YS> {
+    typedef YS type;
+};
+
 template<typename XS, typename X> struct Index {
     template<typename YS, typename Y> struct Go {
         typedef typename YS::Head Head;

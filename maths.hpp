@@ -68,6 +68,11 @@ template<typename B> struct Range<B, B> {
     typedef List<B> type;
 };
 
+template<typename A, typename B> struct Mod {
+    static const long value = A::type::value % B::type::value;
+    typedef Int<value> type;
+};
+
 template<long X, long Y> struct GCD {
     static const long value = GCD<Y, X % Y>::type::value;
     typedef Int<value> type;

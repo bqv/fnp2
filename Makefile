@@ -1,7 +1,7 @@
 appname := fnp2
 
 CXX := clang++
-CXXFLAGS := -std=c++11
+CXXFLAGS := -std=c++11 -ftemplate-depth-512
 
 srcfiles := $(shell find . -name "*.cpp")
 objects  := $(patsubst %.cpp, %.o, $(srcfiles))
