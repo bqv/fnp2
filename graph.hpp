@@ -81,6 +81,31 @@ template<typename N> struct GetOutput {
     typedef typename Bind<A, B>::type type;
 };
 
+template<typename I, typename O, typename G, typename B, typename N> struct RunLayer {
+    template<typename X> using GetValues = typename GetValue<X, G>::type;
+    static constexpr char mvif[] = "Missing value in feedforward";
+    typedef typename Maybe<Left<mvif>, Right, typename Sequence<typename Map<GetValues, I>::type>::type>::type Values;
+    template<typename X> using GetLinks = typename LinksFrom<X, G>::type;
+    typedef typename Map<GetLinks, I>::type Links;
+    template<typename X, typename YS> struct FindWeights {
+        template<typename Y> using GetWeights = typename GetWeight<X, Y, G>::type;
+        typename Sequence<typename Map<GetWeights, YS>::type>::type type;
+    };
+    static constexpr char mgdf[] = "Mismatched graph during feedforward";
+    typedef typename Maybe<Left<mgdf>, Right, typename SafeZipWith<FindWeights, I, Links>::type>::type Weights;
+};
+
+template<typename X, typename G, typename N> struct RunNetworkImpl {
+    typedef Right<G> type;
+};
+template<typename X, typename Y, typename YS, typename G, typename N> struct RunNetworkImpl<List<X, List<Y, YS>>, G, N> {
+    template<typename Z> using GetBiases = typename FindWithDefault<Z, Int<0>, typename N::Bias>::type;
+    typedef typename Map<GetBiases, Y>::type Biases;
+    typedef typename RunLayer<X, Y, G, Biases, typename N::Nonlin>::type LayerValues;
+    template<typename Z> using GoNext = typename RunNetworkImpl<List<Y, YS>, Z, N>::type;
+    typedef typename Bind<LayerValues, GoNext>::type type;
+};
+
 template<typename N, typename I> struct RunNetwork {
     template<typename X> using FindOrZero = typename FindWithDefault<X, Int<0>, typename N::Bias>::type;
     template<typename XS> using GetBiases = typename Map<FindOrZero, XS>::type;
@@ -99,6 +124,12 @@ template<typename N, typename I> struct RunNetwork {
     template<typename XS, typename YS> using SetValues = typename SafeZipWith<CurriedSetValue, XS, YS>::type;
     static constexpr char eii[] = "Error insesrting input";
     typedef typename Maybe<Left<eii>, Right, typename Join<typename LiftM2<SetValues, typename N::Layers, Inputs>::type>::type>::type Insertions;
+    template<typename X> using FoldWithGraph = typename Foldl<BiApply, typename N::Graph, X>::type;
+    typedef typename FMap<FoldWithGraph, Insertions>::type InputGraph;
+    template<typename X> using MakeGraph = typename RunNetworkImpl<typename N::Layers, X, N>::type;
+    typedef typename Bind<InputGraph, MakeGraph>::type NewGraph;
+    template<typename X> using UpdateGraph = typename UpdateNetwork<N, X>::type;
+    typedef typename FMap<UpdateGraph, NewGraph>::type type;
 };
 
 #endif /*GRAPH_HPP*/

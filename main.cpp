@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     std::cout << "Second: " << Nth<Nats, 1>::type::value << std::endl;
     std::cout << "Index(3): " << Index<Nats, Int<3>>::type::value << std::endl;
     std::cout << "String: " << PutStrLn<String>();
-    std::cout << "FizzBuzz: " << PutStrLn<typename Main<Nats>::type>();
+    //std::cout << "FizzBuzz: " << PutStrLn<typename Main<Nats>::type>();
     return 0;
 }
 
